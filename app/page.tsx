@@ -1,6 +1,8 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, Flame } from "lucide-react"
+import { ArrowRight, Flame, CheckCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import FeaturedProducts from "@/components/featured-products"
 import NewsletterForm from "@/components/newsletter-form"
@@ -12,6 +14,13 @@ export default function Home() {
   const [formLoading, setFormLoading] = useState(false)
   const [formSuccess, setFormSuccess] = useState(false)
   const nameRef = useRef<HTMLInputElement>(null)
+
+  // Calendar booking state
+  const [selectedDay, setSelectedDay] = useState<number | null>(null)
+  const [booking, setBooking] = useState({ name: "", phone: "" })
+  const [bookingLoading, setBookingLoading] = useState(false)
+  const [bookingSuccess, setBookingSuccess] = useState(false)
+  const bookingNameRef = useRef<HTMLInputElement>(null)
 
   return (
     <div className="flex flex-col">
@@ -117,19 +126,63 @@ export default function Home() {
               <h3 className="font-serif text-2xl mb-4">Book a Candle-Making Experience</h3>
               <div className="w-full flex flex-col items-center">
                 <div className="grid grid-cols-7 gap-2 mb-4">
-                  {/* Mock calendar days */}
                   {[...Array(28)].map((_, i) => (
                     <button
                       key={i}
+                      type="button"
                       className={`w-8 h-8 rounded-full text-sm font-medium transition-all duration-200 
-                        ${i === 10 ? "bg-forest-dark text-white" : "bg-white text-foreground hover:bg-clay-light"}`}
+                        ${selectedDay === i + 1 ? "bg-forest-dark text-white ring-2 ring-clay-dark" : "bg-white text-foreground hover:bg-clay-light"}`}
+                      onClick={() => setSelectedDay(i + 1)}
+                      aria-pressed={selectedDay === i + 1}
                     >
                       {i + 1}
                     </button>
                   ))}
                 </div>
-                <p className="text-muted-foreground text-xs mb-2">Select a date to reserve your spot</p>
-                <button className="mt-2 px-6 py-2 rounded-full bg-forest-dark text-white font-medium hover:bg-forest-dark/90 transition-all duration-200">Book Now</button>
+                <form
+                  className="w-full max-w-xs flex flex-col gap-3"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setBookingLoading(true);
+                    setTimeout(() => {
+                      setBookingLoading(false);
+                      setBookingSuccess(true);
+                      setBooking({ name: "", phone: "" });
+                      setSelectedDay(null);
+                      if (bookingNameRef.current) bookingNameRef.current.focus();
+                      setTimeout(() => setBookingSuccess(false), 2000);
+                    }, 1200);
+                  }}
+                >
+                  <input
+                    ref={bookingNameRef}
+                    type="text"
+                    placeholder="Your Name"
+                    className="rounded-md px-4 py-2 border border-clay-light focus:ring-forest-dark outline-none transition-all"
+                    value={booking.name}
+                    onChange={e => setBooking(b => ({ ...b, name: e.target.value }))}
+                    disabled={bookingLoading}
+                    required
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Phone Number"
+                    className="rounded-md px-4 py-2 border border-clay-light focus:ring-forest-dark outline-none transition-all"
+                    value={booking.phone}
+                    onChange={e => setBooking(b => ({ ...b, phone: e.target.value }))}
+                    disabled={bookingLoading}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    className="mt-2 px-6 py-2 rounded-full bg-forest-dark text-white font-medium flex items-center justify-center gap-2 hover:bg-forest-dark/90 transition-all duration-200 disabled:opacity-60"
+                    disabled={bookingLoading || !selectedDay}
+                  >
+                    {bookingLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : bookingSuccess ? <CheckCircle className="h-4 w-4 text-green-400" /> : "Book Now"}
+                    {bookingSuccess && <span>Booked!</span>}
+                  </button>
+                  <p className="text-muted-foreground text-xs mt-2">{selectedDay ? `Selected: ${selectedDay}th` : "Select a date to reserve your spot"}</p>
+                </form>
               </div>
             </div>
           </div>
