@@ -4,8 +4,15 @@ import { ArrowRight, Flame } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import FeaturedProducts from "@/components/featured-products"
 import NewsletterForm from "@/components/newsletter-form"
+import { useState, useRef } from "react"
 
 export default function Home() {
+  // Add state for mock form
+  const [formState, setFormState] = useState({ name: "", email: "", password: "" })
+  const [formLoading, setFormLoading] = useState(false)
+  const [formSuccess, setFormSuccess] = useState(false)
+  const nameRef = useRef<HTMLInputElement>(null)
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -16,6 +23,7 @@ export default function Home() {
             alt="Cozy candle setting"
             fill
             priority
+            sizes="100vw"
             className="object-cover brightness-[0.85]"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
@@ -89,10 +97,101 @@ export default function Home() {
                   src="/kate-kasiutich-A8ZNOy1HCPg-unsplash-min.jpg"
                   alt="Candle making process"
                   fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  loading="lazy"
                   className="object-cover"
                 />
               </div>
               <div className="absolute -bottom-8 -left-8 hidden md:block w-40 h-40 bg-clay-light rounded-full opacity-30 -z-10"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Calendar Scheduling & Account Creation (Mock) */}
+      <section className="py-20 md:py-28 bg-white border-t border-b border-linen-light">
+        <div className="container max-w-4xl mx-auto flex flex-col md:flex-row gap-12 items-center justify-center">
+          {/* Mock Calendar */}
+          <div className="flex-1 w-full">
+            <div className="bg-linen-light rounded-2xl shadow p-8 flex flex-col items-center">
+              <h3 className="font-serif text-2xl mb-4">Book a Candle-Making Experience</h3>
+              <div className="w-full flex flex-col items-center">
+                <div className="grid grid-cols-7 gap-2 mb-4">
+                  {/* Mock calendar days */}
+                  {[...Array(28)].map((_, i) => (
+                    <button
+                      key={i}
+                      className={`w-8 h-8 rounded-full text-sm font-medium transition-all duration-200 
+                        ${i === 10 ? "bg-forest-dark text-white" : "bg-white text-foreground hover:bg-clay-light"}`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-muted-foreground text-xs mb-2">Select a date to reserve your spot</p>
+                <button className="mt-2 px-6 py-2 rounded-full bg-forest-dark text-white font-medium hover:bg-forest-dark/90 transition-all duration-200">Book Now</button>
+              </div>
+            </div>
+          </div>
+          {/* Mock Account Creation */}
+          <div className="flex-1 w-full">
+            <div className="bg-linen-light rounded-2xl shadow p-8 flex flex-col items-center">
+              <h3 className="font-serif text-2xl mb-4">Create Your Account</h3>
+              <form
+                className="w-full max-w-xs flex flex-col gap-4"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setFormLoading(true);
+                  setTimeout(() => {
+                    setFormLoading(false);
+                    setFormSuccess(true);
+                    setFormState({ name: "", email: "", password: "" });
+                    // Focus name field for quick retry
+                    if (nameRef.current) nameRef.current.focus();
+                    setTimeout(() => setFormSuccess(false), 2000);
+                  }, 1200);
+                }}
+              >
+                <input
+                  ref={nameRef}
+                  type="text"
+                  placeholder="Full Name"
+                  className="rounded-md px-4 py-3 border border-clay-light focus:ring-forest-dark outline-none transition-all"
+                  value={formState.name}
+                  onChange={e => setFormState(f => ({ ...f, name: e.target.value }))}
+                  disabled={formLoading}
+                  required
+                />
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  className="rounded-md px-4 py-3 border border-clay-light focus:ring-forest-dark outline-none transition-all"
+                  value={formState.email}
+                  onChange={e => setFormState(f => ({ ...f, email: e.target.value }))}
+                  disabled={formLoading}
+                  required
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  className="rounded-md px-4 py-3 border border-clay-light focus:ring-forest-dark outline-none transition-all"
+                  value={formState.password}
+                  onChange={e => setFormState(f => ({ ...f, password: e.target.value }))}
+                  disabled={formLoading}
+                  required
+                />
+                <button
+                  type="submit"
+                  className="mt-2 px-6 py-2 rounded-full bg-clay-dark text-white font-medium hover:bg-clay-dark/90 transition-all duration-200 disabled:opacity-60"
+                  disabled={formLoading}
+                >
+                  {formLoading ? "Creating..." : formSuccess ? "Account Created!" : "Sign Up"}
+                </button>
+                {formSuccess && (
+                  <p className="text-green-600 text-xs mt-2">Account created! (Mock)</p>
+                )}
+              </form>
+              <p className="text-xs text-muted-foreground mt-4">Mock form – no data is saved.</p>
             </div>
           </div>
         </div>
